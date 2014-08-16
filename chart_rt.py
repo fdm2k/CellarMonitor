@@ -10,6 +10,16 @@ hum_sensor = 22
 hum_pin = 17
 amb_sensor = DS18B20()
 
+# setup gauge limits
+Ambient_yellowTo = 5
+Ambient_redFrom = 25
+Fridge_yellowTo = 9
+Fridge_redFrom = 14
+Humidity_yellowTo = 50
+Humidity_redFrom = 75
+Outside_yellowTo = 2
+Outside_redFrom = 35
+
 #rt_fridge_humidity, rt_fridge_temp = Adafruit_DHT.read_retry(hum_sensor, hum_pin)
 #amb_temp_array = amb_sensor.get_temperatures([DS18B20.DEGREES_C, DS18B20.DEGREES_F, DS18B20.KELVIN])
 #rt_ambient_temp = amb_temp_array[0]
@@ -152,23 +162,17 @@ def printHTTPfooter():
 # Main program body
 def main():
     # get the latest temp readings
-    cur_datetime, cur_ambient_temp, cur_fridge_temp, cur_fridge_humidity, cur_outside_temp = str(str(get_latest_readings()).split(",")).strip(" ")
+    cur_datetime, cur_ambient_temp, cur_fridge_temp, cur_fridge_humidity, cur_outside_temp = str(get_latest_readings()).split(",")
 
     # print out the header section
     printHTTPheader()
 
-    printGauge('Ambient', cur_ambient_temp,5,20)
-    printGauge('Fridge', cur_fridge_temp,9,14)
-    printGauge('Humidity', cur_fridge_humidity,50,75)
-    printGauge('Outside', cur_outside_temp,2,30)
-
-    #printGauge('Ambient', rt_ambient_temp,5,20)
-    #printGauge('Fridge', rt_fridge_temp,9,14)
-    #printGauge('Humidity', rt_fridge_humidity,50,75)
-    #printGauge('Outside', 0.1,2,30)
-
+    # print gauges, values and limits
+    printGauge('Ambient', cur_ambient_temp.strip(" "),Ambient_yellowTo,Ambient_redFrom)
+    printGauge('Fridge', cur_fridge_temp.strip(" "),Fridge_yellowTo,Fridge_redFrom)
+    printGauge('Humidity', cur_fridge_humidity.strip(" "),Humidity_yellowTo,Humidity_redFrom)
+    printGauge('Outside', cur_outside_temp.strip(" "),Outside_yellowTo,Outside_redFrom)
     print """    <div class="row">"""
-
     printResultRow('Ambient')
     printResultRow('Fridge')
     print """      <div class="clearfix visible-sm-block"></div>"""
