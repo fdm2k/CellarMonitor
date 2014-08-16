@@ -85,14 +85,13 @@ def printHTTPheader():
             </div>
             <div class="navbar-collapse collapse">
               <ul class="nav navbar-nav">
-                <li class="active"><a href="/cgi-bin/chart_rt.py">Real-time</a></li>
-                <li><a href="/cgi-bin/chart.py">Historical</a></li>
-                <li class="dropdown">
-                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Chart Types <span class="caret"></span></a>
+                <li><a href="/cgi-bin/chart_rt.py">Real-time</a></li>
+                <li class="dropdown active">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Historical Charts<span class="caret"></span></a>
                   <ul class="dropdown-menu" role="menu">
-                    <li><a href="#">Line chart</a></li>
-                    <li><a href="#">Bar chart</a></li>
-                    <li><a href="#">Awesome chart</a></li>
+                    <li><a href="#">Last 24 hrs</a></li>
+                    <li><a href="/cgi-bin/chart_7day.py">Last 7 days</a></li>
+                    <li><a href="/cgi-bin/chart_lh.py">Last hour</a></li>
                     <li class="divider"></li>
                     <li><a href="#">Colour scheme #2</a></li>
                   </ul>
