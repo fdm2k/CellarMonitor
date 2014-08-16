@@ -152,7 +152,7 @@ def printHTTPfooter():
 # Main program body
 def main():
     # get the latest temp readings
-    cur_datetime, cur_ambient_temp, cur_fridge_temp, cur_fridge_humidity, cur_outside_temp = str(get_latest_readings()).split(",").strip(" ")
+    cur_datetime, cur_ambient_temp, cur_fridge_temp, cur_fridge_humidity, cur_outside_temp = str(str(get_latest_readings()).split(",")).strip(" ")
 
     # print out the header section
     printHTTPheader()
