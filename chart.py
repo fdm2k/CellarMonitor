@@ -8,7 +8,7 @@ cgitb.enable()
 
 # grab the current, most recent readings from the sensors
 def get_latest_readings():
-    dbfile = '/home/pi/scripts/templog.db'
+    dbfile = '/home/pi/scripts/CellarMon/templog.db'
 
     conn=sqlite3.connect(dbfile)
     curs=conn.cursor()
@@ -24,7 +24,7 @@ def get_latest_readings():
 def print_table():
     rownum = 0
     string = ""
-    dbfile = '/home/pi/scripts/templog.db'
+    dbfile = '/home/pi/scripts/CellarMon/templog.db'
 
     conn=sqlite3.connect(dbfile)
     curs=conn.cursor()

@@ -68,35 +68,38 @@ elif mode == "db":
 	# keep looping forever (well, until the RPi shits itself or something similar)
 	while True:
 		# grab some sensor readings on both the DHT22 and DS18B20 sensors
-        fridge_hum, fridge_temp = Adafruit_DHT.read_retry(hum_sensor, hum_pin)
-        amb_temp = amb_sensor.get_temperatures([DS18B20.DEGREES_C, DS18B20.DEGREES_F, DS18B20.KELVIN])
+	        fridge_hum, fridge_temp = Adafruit_DHT.read_retry(hum_sensor, hum_pin)
+        	amb_temp = amb_sensor.get_temperatures([DS18B20.DEGREES_C, DS18B20.DEGREES_F, DS18B20.KELVIN])
 
 		# try again just in case you get a dud reading
-		while fridge_hum > 100 or fridge_temp < 5 or fridge_humidity < 50 or db_loopcount <= 5:
-			# try to grab the temp values once more
-            fridge_hum, fridge_temp = Adafruit_DHT.read_retry(hum_sensor, hum_pin)
-            amb_temp = amb_sensor.get_temperatures([DS18B20.DEGREES_C, DS18B20.DEGREES_F, DS18B20.KELVIN])
+		if fridge_hum > 100 or fridge_temp < 5 or fridge_hum < 50:
+			while fridge_hum > 100 or fridge_temp < 5 or fridge_hum < 50 or db_loopcount <= 5:
+
+				# try to grab the temp values once more
+            			fridge_hum, fridge_temp = Adafruit_DHT.read_retry(hum_sensor, hum_pin)
+            			amb_temp = amb_sensor.get_temperatures([DS18B20.DEGREES_C, DS18B20.DEGREES_F, DS18B20.KELVIN])
             
-            # limit how many times we retry; give in eventually
-            db_loopcount += 1
+            			# limit how many times we retry; give in eventually
+            			db_loopcount += 1
 
-            # retry at the interval so we don't overload the sensor or get erroneous values
-			time.sleep(5)
+            			# retry at the interval so we don't overload the sensor or get erroneous values
+				time.sleep(2)
 
-        # write to the database in format: "datetime,ambient_temp,fridge_temp,fridge_humidity, outside_temp"
-        #print "DB_MODE: saving temp information to the DB..."
+        	# write to the database in format: "datetime,ambient_temp,fridge_temp,fridge_humidity, outside_temp"
+        	print "DB_MODE: saving temp information to the DB..."
         
-        # write the current temps into the DB and clean up
+        	# write the current temps into the DB and clean up
 		conn=sqlite3.connect(dbfile)
 		curs=conn.cursor()
 		
 		add_temp_reading(amb_temp[0],fridge_temp,fridge_hum)
 
 		conn.close()
+		db_loopcount = 0
 
 		# wait 5 mins before grabbing next set of readings
-        #print "DB_MODE: sleeping 5 mins..."
-        time.sleep(300)
+        	print "DB_MODE: sleeping 5 mins..."
+        	time.sleep(300)
 else:
 	# grab the latest sensor readings from the DHT22 and DS18B20 and report results to stdout 
 	fridge_hum, fridge_temp = Adafruit_DHT.read_retry(hum_sensor, hum_pin)
