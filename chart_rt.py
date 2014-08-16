@@ -29,7 +29,7 @@ def get_latest_readings():
     curs=conn.cursor()
 
     for row in curs.execute("SELECT datetime, ambient_temp,fridge_temp,fridge_humidity,outside_temp FROM temps ORDER BY datetime DESC LIMIT 1"):
-	cur_reading = "['"+str(row[0])+"',"+str(row[1])+","+str(row[2])+","+str(row[3])+","+str(row[4])+"]"
+      cur_reading = "['"+str(row[0])+"',"+str(row[1])+","+str(row[2])+","+str(row[3])+","+str(row[4])+"]"
 
     #return cur_datetime, cur_ambient_temp, cur_fridge_temp, cur_fridge_humidity, cur_outside_temp
     return str(row).replace("(u'","").replace("'","").replace(")","")
@@ -48,26 +48,26 @@ def printHTTPheader():
     	<meta name="author" content="">
     	<link rel="icon" href="/favicon.ico">
 
-        <title>CellarMon: Beer Cellar Monitor</title>
+      <title>CellarMon: Beer Cellar Monitor</title>
 
-	<!-- Bootstrap core CSS -->
-      	<link href="/css/bootstrap.min.css" rel="stylesheet">
+	    <!-- Bootstrap core CSS -->
+      <link href="/css/bootstrap.min.css" rel="stylesheet">
 
     	<!-- Custom styles for this template -->
-      	<link href="/grid.css" rel="stylesheet">
+      <link href="/grid.css" rel="stylesheet">
 
-      	<!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
-      	<!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
-      	<script src="/assets/js/ie-emulation-modes-warning.js"></script>
+      <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+      <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+      <script src="/assets/js/ie-emulation-modes-warning.js"></script>
 
-      	<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-      	<script src="/assets/js/ie10-viewport-bug-workaround.js"></script>
+      <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+      <script src="/assets/js/ie10-viewport-bug-workaround.js"></script>
 
-      	<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-      	<!--[if lt IE 9]>
-          <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-          <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-      	<![endif]-->
+      <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+      <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+      <![endif]-->
     </head>
 
     <body>
@@ -85,8 +85,8 @@ def printHTTPheader():
             </div>
             <div class="navbar-collapse collapse">
               <ul class="nav navbar-nav">
-                <li><a href="/cgi-bin/chart_rt.py">Real-time</a></li>
-                <li class="dropdown active">
+                <li class="active"><a href="/cgi-bin/chart_rt.py">Real-time</a></li>
+                <li class="dropdown">
                   <a href="#" class="dropdown-toggle" data-toggle="dropdown">Historical Charts<span class="caret"></span></a>
                   <ul class="dropdown-menu" role="menu">
                     <li><a href="/cgi-bin/chart.py">Last 24 hrs</a></li>
@@ -102,7 +102,7 @@ def printHTTPheader():
         </div>
         <div class="page-header">
           <h2>CellarMon: Beer Cellar Temp Monitor</h2>
-	</div>"""
+	      </div>"""
 
 def printGauge(gauge_name, reading, yellowTo, redFrom):
     greenFrom = int(yellowTo)
@@ -132,7 +132,7 @@ def printGauge(gauge_name, reading, yellowTo, redFrom):
       }
     </script>""" % (gauge_name, float(reading), int(redFrom), int(greenFrom), int(greenTo), int(yellowTo), gauge_name)
 
-
+# draw each gauge HTML
 def printResultRow(gauge_name):
     print """      <div class="col-sm-6 col-lg-3 center-block" id="%s"></div>""" % gauge_name
 
@@ -152,15 +152,15 @@ def printHTTPfooter():
 # Main program body
 def main():
     # get the latest temp readings
-    cur_datetime, cur_ambient_temp, cur_fridge_temp, cur_fridge_humidity, cur_outside_temp = str(get_latest_readings()).split(",")
+    cur_datetime, cur_ambient_temp, cur_fridge_temp, cur_fridge_humidity, cur_outside_temp = str(get_latest_readings()).split(",").strip(" ")
 
     # print out the header section
     printHTTPheader()
 
-    printGauge('Ambient', cur_ambient_temp.strip(" "),5,20)
-    printGauge('Fridge', cur_fridge_temp.strip(" "),9,14)
-    printGauge('Humidity', cur_fridge_humidity.strip(" "),50,75)
-    printGauge('Outside', cur_outside_temp.strip(" "),2,30)
+    printGauge('Ambient', cur_ambient_temp,5,20)
+    printGauge('Fridge', cur_fridge_temp,9,14)
+    printGauge('Humidity', cur_fridge_humidity,50,75)
+    printGauge('Outside', cur_outside_temp,2,30)
 
     #printGauge('Ambient', rt_ambient_temp,5,20)
     #printGauge('Fridge', rt_fridge_temp,9,14)
