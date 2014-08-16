@@ -89,7 +89,7 @@ def printHTTPheader():
                 <li class="dropdown active">
                   <a href="#" class="dropdown-toggle" data-toggle="dropdown">Historical Charts<span class="caret"></span></a>
                   <ul class="dropdown-menu" role="menu">
-                    <li><a href="#">Last 24 hrs</a></li>
+                    <li><a href="/cgi-bin/chart.py">Last 24 hrs</a></li>
                     <li><a href="/cgi-bin/chart_7day.py">Last 7 days</a></li>
                     <li><a href="/cgi-bin/chart_lh.py">Last hour</a></li>
                     <li class="divider"></li>
