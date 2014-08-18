@@ -5,31 +5,17 @@ import sqlite3
 import Adafruit_DHT
 from ds18b20 import DS18B20
 
+# enable tracebacks of exceptions
+cgitb.enable()
+
 # setup GPIO-related variables
 hum_sensor = 22
 hum_pin = 17
 amb_sensor = DS18B20()
 
-# setup gauge limits
-Ambient_yellowTo = 5
-Ambient_redFrom = 25
-Fridge_yellowTo = 9
-Fridge_redFrom = 14
-Humidity_yellowTo = 50
-Humidity_redFrom = 75
-Outside_yellowTo = 2
-Outside_redFrom = 35
-
-#rt_fridge_humidity, rt_fridge_temp = Adafruit_DHT.read_retry(hum_sensor, hum_pin)
-#amb_temp_array = amb_sensor.get_temperatures([DS18B20.DEGREES_C, DS18B20.DEGREES_F, DS18B20.KELVIN])
-#rt_ambient_temp = amb_temp_array[0]
-
-#print "Ambient temp: "+str(rt_ambient_temp)
-#print "Fridge temp: "+str(rt_fridge_temp)
-#print "Fridge humidity: "+str(rt_fridge_humidity)
-
-# enable tracebacks of exceptions
-cgitb.enable()
+rt_fridge_humidity, rt_fridge_temp = Adafruit_DHT.read_retry(hum_sensor, hum_pin)
+amb_temp_array = amb_sensor.get_temperatures([DS18B20.DEGREES_C, DS18B20.DEGREES_F, DS18B20.KELVIN])
+rt_ambient_temp = amb_temp_array[0]
 
 # grab the current, most recent readings from the sensors
 def get_latest_readings():
@@ -96,7 +82,8 @@ def printHTTPheader():
             </div>
             <div class="navbar-collapse collapse">
               <ul class="nav navbar-nav custom">
-                <li class="active"><a href="/cgi-bin/chart_rt.py">Real-time</a></li>
+                <li class="active"><a href="#">Statustics</a></li>
+                <li><a href="/cgi-bin/chart_rt.py">Real-time</a></li>
                 <li><a href="/cgi-bin/chart_1hr.py">Last hour</a></li>
                 <li><a href="/cgi-bin/chart.py">Last 24 hrs</a></li>
                 <li><a href="/cgi-bin/chart_7day.py">Last 7 days</a></li>
@@ -107,34 +94,6 @@ def printHTTPheader():
         <div class="page-header">
           <h2>CellarMon: Beer Cellar Temp Monitor</h2>
 	      </div>"""
-
-def printGauge(gauge_name, reading, yellowTo, redFrom):
-    greenFrom = int(yellowTo)
-    greenTo = int(redFrom)
-
-    print """
-    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-    <script type="text/javascript">
-      google.load("visualization", "1", {packages:["gauge"]});
-      google.setOnLoadCallback(drawChart);
-      function drawChart() {
-
-        var data = google.visualization.arrayToDataTable([
-          ['Label', 'Value'],
-          ['%s', %0.1f],
-        ]);
-
-        var options = {
-          width: 300, height: 150,
-          redFrom: %d, redTo: 100,
-          greenFrom: %d, greenTo: %d,
-          yellowFrom:0, yellowTo: %d,
-          minorTicks: 10
-        };
-
-        new google.visualization.Gauge(document.getElementById('%s')).draw(data, options);
-      }
-    </script>""" % (gauge_name, float(reading), int(redFrom), int(greenFrom), int(greenTo), int(yellowTo), gauge_name)
 
 # draw each gauge HTML
 def printResultRow(gauge_name):
@@ -155,25 +114,13 @@ def printHTTPfooter():
 
 # Main program body
 def main():
-    # get the latest temp readings
-    cur_datetime, cur_ambient_temp, cur_fridge_temp, cur_fridge_humidity, cur_outside_temp = str(get_latest_readings()).split(",")
-
     # print out the header section
     printHTTPheader()
 
-    # print gauges, values and limits
-    printGauge('Ambient', cur_ambient_temp.strip(" "),Ambient_yellowTo,Ambient_redFrom)
-    printGauge('Fridge', cur_fridge_temp.strip(" "),Fridge_yellowTo,Fridge_redFrom)
-    printGauge('Humidity', cur_fridge_humidity.strip(" "),Humidity_yellowTo,Humidity_redFrom)
-    printGauge('Outside', cur_outside_temp.strip(" "),Outside_yellowTo,Outside_redFrom)
-    print """    <div class="row">"""
-    printResultRow('Ambient')
-    printResultRow('Fridge')
-    print """      <div class="clearfix visible-sm-block"></div>"""
-    printResultRow('Humidity')
-    printResultRow('Outside')
-    print """      <div class="clearfix visible-sm-block"></div>"""
-    print """      <div class="clearfix visible-lg-block"></div>"""
+    # print latest readings and current statistics
+    print "Ambient temp: "+str(rt_ambient_temp)+ "as at "+str(datetime(now))
+    print "Fridge temp: "+str(rt_fridge_temp)+ "as at "+str(datetime(now
+    print "Fridge humidity: "+str(rt_fridge_humidity)+ "as at "+str(datetime(now
 
     printHTTPfooter()
 
