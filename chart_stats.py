@@ -2,36 +2,28 @@
 import cgi
 import cgitb
 import sqlite3
-import Adafruit_DHT
-from ds18b20 import DS18B20
+import time
 
 # enable tracebacks of exceptions
 cgitb.enable()
 
-# setup GPIO-related variables
-hum_sensor = 22
-hum_pin = 17
-amb_sensor = DS18B20()
-
-rt_fridge_humidity, rt_fridge_temp = Adafruit_DHT.read_retry(hum_sensor, hum_pin)
-amb_temp_array = amb_sensor.get_temperatures([DS18B20.DEGREES_C, DS18B20.DEGREES_F, DS18B20.KELVIN])
-rt_ambient_temp = amb_temp_array[0]
-
 # grab the current, most recent readings from the sensors
-def get_latest_readings():
+def get_stats(column_name):
     dbfile = '/home/pi/scripts/CellarMon/templog.db'
 
+    # open a connection to the database
     conn=sqlite3.connect(dbfile)
     curs=conn.cursor()
 
-    for row in curs.execute("SELECT datetime, ambient_temp,fridge_temp,fridge_humidity,outside_temp FROM temps ORDER BY datetime DESC LIMIT 1"):
-      cur_reading = "['"+str(row[0])+"',"+str(row[1])+","+str(row[2])+","+str(row[3])+","+str(row[4])+"]"
+    # get result
+    for row in curs.execute("SELECT min("+column_name+"), max("+column_name+"), avg("+column_name+") FROM temps"):
+	#result = str(row[0])+","+str(row[1])
+	result = str(row[0])+","+str(row[1])+","+str(row[2])
 
-    #return cur_datetime, cur_ambient_temp, cur_fridge_temp, cur_fridge_humidity, cur_outside_temp
-    return str(row).replace("(u'","").replace("'","").replace(")","")
+    return result
 
 # print an HTTP header
-def printHTTPheader():
+def printHTMLheader():
     print "Content-type: text/html"
     print """
     <!DOCTYPE html>
@@ -78,13 +70,13 @@ def printHTTPheader():
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
               </button>
-              <a class="navbar-brand" href="#">CellarMon Home</a>
+              <a class="navbar-brand" href="/cgi-bin/chart_stats.py">CellarMon Home</a>
             </div>
             <div class="navbar-collapse collapse">
               <ul class="nav navbar-nav custom">
-                <li class="active"><a href="#">Statustics</a></li>
+                <li class="active"><a href="/cgi-bin/chart_stats.py">Statistics</a></li>
                 <li><a href="/cgi-bin/chart_rt.py">Real-time</a></li>
-                <li><a href="/cgi-bin/chart_1hr.py">Last hour</a></li>
+                <li><a href="/cgi-bin/chart_1hr.py">Last 3 hrs</a></li>
                 <li><a href="/cgi-bin/chart.py">Last 24 hrs</a></li>
                 <li><a href="/cgi-bin/chart_7day.py">Last 7 days</a></li>
               </ul>
@@ -95,12 +87,43 @@ def printHTTPheader():
           <h2>CellarMon: Beer Cellar Temp Monitor</h2>
 	      </div>"""
 
-# draw each gauge HTML
-def printResultRow(gauge_name):
-    print """      <div class="col-sm-6 col-lg-3 center-block" id="%s"></div>""" % gauge_name
+# build the table header
+def printHTMLTableHeader():
+    print """
+    <div class="row">
+        <div class="col-md-6 table-responsive">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Statistic</th>
+                <th>Min</th>
+                <th>Max</th>
+		<th>Avg</th>
+              </tr>
+            </thead>"""
+
+# build the table rows
+def printHTMLResult(colour, column_name):
+    rmin, rmax, ravg = get_stats(column_name).split(",")
+    
+    print """
+            <tbody>
+              <tr class="%s">
+                <td>%s</td>
+                <td>%0.2f</td>
+                <td>%0.2f</td>
+		<td>%0.2f</td>
+              </tr>
+            </tbody>""" % (colour, column_name, float(rmin), float(rmax), float(ravg))
+
+# build the table footer
+def printHTMLTableFooter():
+    print """
+          </table>
+        </div>"""
 
 # finish the HTML
-def printHTTPfooter():
+def printHTMLfooter():
     print """
     </div>
     <!-- Bootstrap core JavaScript
@@ -115,14 +138,18 @@ def printHTTPfooter():
 # Main program body
 def main():
     # print out the header section
-    printHTTPheader()
+    printHTMLheader()
 
-    # print latest readings and current statistics
-    print "Ambient temp: "+str(rt_ambient_temp)+ "as at "+str(datetime(now))
-    print "Fridge temp: "+str(rt_fridge_temp)+ "as at "+str(datetime(now
-    print "Fridge humidity: "+str(rt_fridge_humidity)+ "as at "+str(datetime(now
+    # build the table of results
+    printHTMLTableHeader()
+    printHTMLResult("info", "ambient_temp")
+    printHTMLResult("","fridge_temp")
+    printHTMLResult("info","fridge_humidity")
+    printHTMLResult("","outside_temp")
+    printHTMLTableFooter()
 
-    printHTTPfooter()
+    # print the HTTP footer
+    printHTMLfooter()
 
 if __name__=="__main__":
     main()

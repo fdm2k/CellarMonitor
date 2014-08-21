@@ -65,6 +65,7 @@ def printHTTPheader():
 
     	<!-- Custom styles for this template -->
       <link href="/grid.css" rel="stylesheet">
+      <link href="/custnav.css" rel="stylesheet">
 
       <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
       <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
@@ -91,21 +92,15 @@ def printHTTPheader():
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
               </button>
-              <a class="navbar-brand" href="#">CellarMon Home</a>
+              <a class="navbar-brand" href="/cgi-bin/chart_stats.py">CellarMon Home</a>
             </div>
             <div class="navbar-collapse collapse">
-              <ul class="nav navbar-nav">
+              <ul class="nav navbar-nav custom">
+		<li><a href="/cgi-bin/chart_stats.py">Statistics</a></li>
                 <li class="active"><a href="/cgi-bin/chart_rt.py">Real-time</a></li>
-                <li class="dropdown">
-                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Historical Charts<span class="caret"></span></a>
-                  <ul class="dropdown-menu" role="menu">
-                    <li><a href="/cgi-bin/chart.py">Last 24 hrs</a></li>
-                    <li><a href="/cgi-bin/chart_7day.py">Last 7 days</a></li>
-                    <li><a href="/cgi-bin/chart_lh.py">Last hour</a></li>
-                    <li class="divider"></li>
-                    <li><a href="#">Colour scheme #2</a></li>
-                  </ul>
-                </li>
+                <li><a href="/cgi-bin/chart_1hr.py">Last 3 hrs</a></li>
+                <li><a href="/cgi-bin/chart.py">Last 24 hrs</a></li>
+                <li><a href="/cgi-bin/chart_7day.py">Last 7 days</a></li>
               </ul>
             </div><!--/.nav-collapse -->
           </div>

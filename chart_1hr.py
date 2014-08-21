@@ -33,7 +33,7 @@ def print_table():
     for row in cursor:
         totalrows = str(row[0]).replace(" ","")
 
-    for row in curs.execute("SELECT datetime, ambient_temp, fridge_temp, fridge_humidity, outside_temp FROM temps WHERE datetime >= datetime('now','-1 hour')"):
+    for row in curs.execute("SELECT datetime, ambient_temp, fridge_temp, fridge_humidity, outside_temp FROM temps WHERE datetime >= datetime('now','+6.5 hours')"):
         rownum += 1
         string = string+"['"+str(row[0])+"',"+str(row[1])+","+str(row[2])+","+str(row[3])+"]"
         if str(rownum) <> str(totalrows):
@@ -92,12 +92,13 @@ def printHTTPheader():
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
               </button>
-              <a class="navbar-brand" href="/cgi-bin/chart_rt.py">CellarMon Home</a>
+              <a class="navbar-brand" href="/cgi-bin/chart_stats.py">CellarMon Home</a>
             </div>
             <div class="navbar-collapse collapse">
               <ul class="nav navbar-nav">
+		<li><a href="/cgi-bin/chart_stats.py">Statistics</a></li>
                 <li><a href="/cgi-bin/chart_rt.py">Real-time</a></li>
-                <li class="active"><a href="#">Last hour</a></li>
+                <li class="active"><a href="/cgi-bin/chart_1hr.py">Last 3 hrs</a></li>
                 <li><a href="/cgi-bin/chart.py">Last 24 hrs</a></li>
                 <li><a href="/cgi-bin/chart_7day.py">Last 7 days</a></li>
               </ul>
@@ -130,6 +131,8 @@ def main():
 	  ]);
 
         var options = {
+          title: 'Last 3 hours',
+          titleFontSize: 20,
 	  curveType: 'function',
 	  lineWidth: 2,
 	  vAxes: {
@@ -144,7 +147,10 @@ def main():
 		   title: 'Humidity'
 		}
 	  },
-	  hAxis: {format: 'YYYY-MM-DD HH:MM'},
+	  hAxis: {
+		format: 'HH:MM',
+                textStyle:{fontSize: 12},
+	  },
 	  series: {
           	0: { targetAxisIndex: 0, color: '#5F79AB' },
           	1: { targetAxisIndex: 0, color: '#51B85C' },
