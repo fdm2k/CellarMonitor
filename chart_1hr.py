@@ -33,7 +33,7 @@ def print_table():
     for row in cursor:
         totalrows = str(row[0]).replace(" ","")
 
-    for row in curs.execute("SELECT datetime, ambient_temp, fridge_temp, fridge_humidity, outside_temp FROM temps WHERE datetime >= date('now','-1 hour')"):
+    for row in curs.execute("SELECT datetime, ambient_temp, fridge_temp, fridge_humidity, outside_temp FROM temps WHERE datetime >= datetime('now','-1 hour')"):
         rownum += 1
         string = string+"['"+str(row[0])+"',"+str(row[1])+","+str(row[2])+","+str(row[3])+"]"
         if str(rownum) <> str(totalrows):
