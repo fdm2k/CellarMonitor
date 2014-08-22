@@ -4,11 +4,17 @@ import cgitb
 import sqlite3
 import time
 
+column_array = ['ambient_temp','fridge_temp','fridge_humidity','outside_temp']
+stat_array = ['Min','Max','Avg']
+
+#colourbar_state = True
+colourbar_colour = 'info'
+
 # enable tracebacks of exceptions
 cgitb.enable()
 
 # grab the current, most recent readings from the sensors
-def get_stats(column_name):
+def get_stats(stat, column_name):
     dbfile = '/home/pi/scripts/CellarMon/templog.db'
 
     # open a connection to the database
@@ -16,9 +22,10 @@ def get_stats(column_name):
     curs=conn.cursor()
 
     # get result
-    for row in curs.execute("SELECT min("+column_name+"), max("+column_name+"), avg("+column_name+") FROM temps"):
+    #for row in curs.execute("SELECT min("+column_name+"), max("+column_name+"), avg("+column_name+") FROM temps"):
+    for row in curs.execute("SELECT "+stat+"("+column_name+") FROM temps"):
 	#result = str(row[0])+","+str(row[1])
-	result = str(row[0])+","+str(row[1])+","+str(row[2])
+	result = str(row[0])
 
     return result
 
@@ -95,30 +102,42 @@ def printHTMLTableHeader():
           <table class="table table-bordered">
             <thead>
               <tr>
-                <th>Statistic</th>
-                <th>Min</th>
-                <th>Max</th>
-		<th>Avg</th>
-              </tr>
-            </thead>"""
+                <th>Statistic</th>"""
+    for item in stat_array:
+        print """
+		<th>%s</th>""" % item
+    print """
+          </tr>
+            </thead>
+	    <tbody>"""
 
 # build the table rows
-def printHTMLResult(colour, column_name):
-    rmin, rmax, ravg = get_stats(column_name).split(",")
-    
+def printHTMLResult(colour_state, column_name):
+    # first determine whether to background-colour the table row or not
+    if colour_state:
+	colour = colourbar_colour
+    else:
+	colour = ""
+
     print """
-            <tbody>
-              <tr class="%s">
-                <td>%s</td>
-                <td>%0.2f</td>
-                <td>%0.2f</td>
-		<td>%0.2f</td>
-              </tr>
-            </tbody>""" % (colour, column_name, float(rmin), float(rmax), float(ravg))
+              <tr class="%s">""" % colour
+
+    print """
+		<td>%s</td>""" % column_name
+
+    for item in stat_array:
+	result = get_stats(item, column_name)
+
+	print """
+		<td>%0.2f</td>""" % float(result)
+
+    print """
+              </tr>"""
 
 # build the table footer
 def printHTMLTableFooter():
     print """
+	    </tbody>
           </table>
         </div>"""
 
@@ -137,15 +156,16 @@ def printHTMLfooter():
 
 # Main program body
 def main():
+    colourbar_state = True
     # print out the header section
     printHTMLheader()
 
     # build the table of results
     printHTMLTableHeader()
-    printHTMLResult("info", "ambient_temp")
-    printHTMLResult("","fridge_temp")
-    printHTMLResult("info","fridge_humidity")
-    printHTMLResult("","outside_temp")
+    for item in column_array:
+	printHTMLResult(colourbar_state, item)
+	colourbar_state = not colourbar_state
+
     printHTMLTableFooter()
 
     # print the HTTP footer
