@@ -106,7 +106,7 @@ def printHTTPheader():
           </div>
         </div>
         <div class="page-header">
-          <h2>CellarMon: Beer Cellar Temp Monitor</h2>
+          <h2>CellarMon <small>Beer Cellar Temp - Last 3 hours</small></h2>
 	</div>"""
 
 # Main program body
@@ -163,7 +163,7 @@ def main():
         new google.visualization.AreaChart(document.getElementById('chart_div')).draw(data, options);
       }
     </script>
-	<div class="row">
+	<div class="row center-block">
 	  <div class="col-sm-6 col-lg-3" id="chart_div" style="width: 900px; height: 500px"></div>
 	</div>
     

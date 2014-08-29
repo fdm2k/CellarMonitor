@@ -91,23 +91,23 @@ def printHTMLheader():
           </div>
         </div>
         <div class="page-header">
-          <h2>CellarMon: Beer Cellar Temp Monitor</h2>
+          <h2>CellarMon <small>Beer Cellar Temp - Statistics</small></h2>
 	      </div>"""
 
 # build the table header
 def printHTMLTableHeader():
     print """
-    <div class="row">
+      <div class="row container">
         <div class="col-md-6 table-responsive">
           <table class="table table-bordered">
             <thead>
               <tr>
                 <th>Statistic</th>"""
     for item in stat_array:
-        print """
-		<th>%s</th>""" % item
-    print """
-          </tr>
+        print """		<th>%s</th>""" % item
+
+    # print trailing table row, header and body
+    print """              </tr>
             </thead>
 	    <tbody>"""
 
@@ -119,32 +119,26 @@ def printHTMLResult(colour_state, column_name):
     else:
 	colour = ""
 
-    print """
-              <tr class="%s">""" % colour
+    print """              <tr class="%s">""" % colour
 
-    print """
-		<td>%s</td>""" % column_name
+    print """		<td>%s</td>""" % column_name
 
     for item in stat_array:
 	result = get_stats(item, column_name)
 
-	print """
-		<td>%0.2f</td>""" % float(result)
+	print """		<td>%0.2f</td>""" % float(result)
 
-    print """
-              </tr>"""
+    print """              </tr>"""
 
 # build the table footer
 def printHTMLTableFooter():
-    print """
-	    </tbody>
+    print """	    </tbody>
           </table>
         </div>"""
 
 # finish the HTML
 def printHTMLfooter():
-    print """
-    </div>
+    print """    </div>
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->

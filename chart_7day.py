@@ -82,11 +82,10 @@ def printHTTPheader():
 
     <body>
       <div class="container">
-
         <div class="navbar navbar-default">
           <div class="container">
             <div class="navbar-header">
-              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".bs-navbar-collapse">
                 <span class="sr-only">Toggle navigation</span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
@@ -95,7 +94,7 @@ def printHTTPheader():
               <a class="navbar-brand" href="/cgi-bin/chart_stats.py">CellarMon Home</a>
             </div>
             <div class="navbar-collapse collapse">
-              <ul class="nav navbar-nav">
+              <ul class="nav navbar-nav"">
 		<li><a href="/cgi-bin/chart_stats.py">Statistics</a></li>
                 <li><a href="/cgi-bin/chart_rt.py">Real-time</a></li>
                 <li><a href="/cgi-bin/chart_1hr.py">Last 3 hrs</a></li>
@@ -106,7 +105,7 @@ def printHTTPheader():
           </div>
         </div>
         <div class="page-header">
-          <h2>CellarMon: Beer Cellar Temp Monitor</h2>
+          <h2>CellarMon <small>Beer Cellar Temp - Last 7 days</small></h2>
 	</div>"""
 
 # Main program body
@@ -160,7 +159,7 @@ def main():
         new google.visualization.AreaChart(document.getElementById('chart_div')).draw(data, options);
       }
     </script>
-	<div class="row">
+	<div class="row center-block">
 	  <div class="col-sm-6 col-lg-3" id="chart_div" style="width: 900px; height: 500px"></div>
 	</div>
     

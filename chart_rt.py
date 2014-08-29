@@ -60,12 +60,11 @@ def printHTTPheader():
 
       <title>CellarMon: Beer Cellar Monitor</title>
 
-	    <!-- Bootstrap core CSS -->
+      <!-- Bootstrap core CSS -->
       <link href="/css/bootstrap.min.css" rel="stylesheet">
 
-    	<!-- Custom styles for this template -->
+      <!-- Custom styles for this template -->
       <link href="/grid.css" rel="stylesheet">
-      <link href="/custnav.css" rel="stylesheet">
 
       <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
       <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
@@ -106,15 +105,14 @@ def printHTTPheader():
           </div>
         </div>
         <div class="page-header">
-          <h2>CellarMon: Beer Cellar Temp Monitor</h2>
+          <h2>CellarMon <small>Beer Cellar Temp - Real-Time Gauges</small></h2>
 	      </div>"""
 
-def printGauge(gauge_name, reading, yellowTo, redFrom):
+def printGauge(gauge_name, reading, yellowTo, redFrom, resultPercent=False):
     greenFrom = int(yellowTo)
     greenTo = int(redFrom)
 
-    print """
-    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    printStr = """    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script type="text/javascript">
       google.load("visualization", "1", {packages:["gauge"]});
       google.setOnLoadCallback(drawChart);
@@ -131,11 +129,19 @@ def printGauge(gauge_name, reading, yellowTo, redFrom):
           greenFrom: %d, greenTo: %d,
           yellowFrom:0, yellowTo: %d,
           minorTicks: 10
-        };
+        };""" % (gauge_name, float(reading), int(redFrom), int(greenFrom), int(greenTo), int(yellowTo))
 
-        new google.visualization.Gauge(document.getElementById('%s')).draw(data, options);
-      }
-    </script>""" % (gauge_name, float(reading), int(redFrom), int(greenFrom), int(greenTo), int(yellowTo), gauge_name)
+    if resultPercent:
+	printStr = printStr+"""var formatter = new google.visualization.NumberFormat(
+	{suffix: '%',pattern:'#'}
+	);
+	formatter.format(data,1);"""
+
+    printStr = printStr+"""new google.visualization.Gauge(document.getElementById('%s')).draw(data, options);
+	}
+    </script>""" % gauge_name
+
+    print printStr
 
 # draw each gauge HTML
 def printResultRow(gauge_name):
@@ -143,8 +149,7 @@ def printResultRow(gauge_name):
 
 # finish the HTML
 def printHTTPfooter():
-    print """
-    </div>
+    print """    </div>
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
@@ -163,11 +168,11 @@ def main():
     printHTTPheader()
 
     # print gauges, values and limits
-    printGauge('Ambient', cur_ambient_temp.strip(" "),Ambient_yellowTo,Ambient_redFrom)
-    printGauge('Fridge', cur_fridge_temp.strip(" "),Fridge_yellowTo,Fridge_redFrom)
-    printGauge('Humidity', cur_fridge_humidity.strip(" "),Humidity_yellowTo,Humidity_redFrom)
-    printGauge('Outside', cur_outside_temp.strip(" "),Outside_yellowTo,Outside_redFrom)
-    print """    <div class="row">"""
+    printGauge('Ambient', cur_ambient_temp.strip(" "), Ambient_yellowTo, Ambient_redFrom)
+    printGauge('Fridge', cur_fridge_temp.strip(" "), Fridge_yellowTo, Fridge_redFrom)
+    printGauge('Humidity', cur_fridge_humidity.strip(" "), Humidity_yellowTo, Humidity_redFrom, True)
+    printGauge('Outside', cur_outside_temp.strip(" "), Outside_yellowTo, Outside_redFrom)
+    print """    <div class="row container">"""
     printResultRow('Ambient')
     printResultRow('Fridge')
     print """      <div class="clearfix visible-sm-block"></div>"""
