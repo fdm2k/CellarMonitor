@@ -20,32 +20,27 @@ Humidity_redFrom = 75
 Outside_yellowTo = 2
 Outside_redFrom = 35
 
-#rt_fridge_humidity, rt_fridge_temp = Adafruit_DHT.read_retry(hum_sensor, hum_pin)
-#amb_temp_array = amb_sensor.get_temperatures([DS18B20.DEGREES_C, DS18B20.DEGREES_F, DS18B20.KELVIN])
-#rt_ambient_temp = amb_temp_array[0]
-
-#print "Ambient temp: "+str(rt_ambient_temp)
-#print "Fridge temp: "+str(rt_fridge_temp)
-#print "Fridge humidity: "+str(rt_fridge_humidity)
-
 # enable tracebacks of exceptions
 cgitb.enable()
 
-# grab the current, most recent readings from the sensors
+# grab the current, most recent sensor readings from the database
 def get_latest_readings():
     dbfile = '/home/pi/scripts/CellarMon/templog.db'
 
+    # setup database connection for querying
     conn=sqlite3.connect(dbfile)
     curs=conn.cursor()
 
+    # pull out latest db entries
     for row in curs.execute("SELECT datetime, ambient_temp,fridge_temp,fridge_humidity,outside_temp FROM temps ORDER BY datetime DESC LIMIT 1"):
       cur_reading = "['"+str(row[0])+"',"+str(row[1])+","+str(row[2])+","+str(row[3])+","+str(row[4])+"]"
 
-    #return cur_datetime, cur_ambient_temp, cur_fridge_temp, cur_fridge_humidity, cur_outside_temp
+    # this will get revised in time - currently leaving it as-is for functionality
     return str(row).replace("(u'","").replace("'","").replace(")","")
 
 # print an HTTP header
 def printHTTPheader():
+    # note: content-type must be printed first otherwise Server 500
     print "Content-type: text/html"
     print """
     <!DOCTYPE html>
@@ -109,6 +104,7 @@ def printHTTPheader():
 	      </div>"""
 
 def printGauge(gauge_name, reading, yellowTo, redFrom, resultPercent=False):
+    # set where the green band starts and finishes on the gauge
     greenFrom = int(yellowTo)
     greenTo = int(redFrom)
 
@@ -131,12 +127,14 @@ def printGauge(gauge_name, reading, yellowTo, redFrom, resultPercent=False):
           minorTicks: 10
         };""" % (gauge_name, float(reading), int(redFrom), int(greenFrom), int(greenTo), int(yellowTo))
 
+    # check whether we're showing a percentage gauge or normal number
     if resultPercent:
 	printStr = printStr+"""var formatter = new google.visualization.NumberFormat(
 	{suffix: '%',pattern:'#'}
 	);
 	formatter.format(data,1);"""
 
+    # wanted to split these up because of percentile formatting
     printStr = printStr+"""new google.visualization.Gauge(document.getElementById('%s')).draw(data, options);
 	}
     </script>""" % gauge_name
@@ -145,7 +143,7 @@ def printGauge(gauge_name, reading, yellowTo, redFrom, resultPercent=False):
 
 # draw each gauge HTML
 def printResultRow(gauge_name):
-    print """      <div class="col-sm-6 col-lg-3 center-block" id="%s"></div>""" % gauge_name
+    print """      <div class="col-sm-6 col-lg-3"><div id="%s" style="width: 146px; margin:auto"></div></div>""" % gauge_name
 
 # finish the HTML
 def printHTTPfooter():
@@ -175,9 +173,11 @@ def main():
     print """    <div class="row container">"""
     printResultRow('Ambient')
     printResultRow('Fridge')
+    # fix responsive grid rendering weirdness
     print """      <div class="clearfix visible-sm-block"></div>"""
     printResultRow('Humidity')
     printResultRow('Outside')
+    # fix responsive grid rendering weirdness
     print """      <div class="clearfix visible-sm-block"></div>"""
     print """      <div class="clearfix visible-lg-block"></div>"""
 
