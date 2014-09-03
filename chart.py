@@ -96,11 +96,11 @@ def printHTTPheader():
             </div>
             <div class="navbar-collapse collapse">
               <ul class="nav navbar-nav">
-		<li><a href="/cgi-bin/chart_stats.py">Statistics</a></li>
-                <li><a href="/cgi-bin/chart_rt.py">Real-time</a></li>
-                <li><a href="/cgi-bin/chart_1hr.py">Last 3 hrs</a></li>
-                <li class="active"><a href="/cgi-bin/chart.py">Last 24 hrs</a></li>
-                <li><a href="/cgi-bin/chart_7day.py">Last 7 days</a></li>
+                <li><a href="/cgi-bin/chart_stats.py"><span class="glyphicon glyphicon-list"></span> Statistics</a></li>
+                <li><a href="/cgi-bin/chart_rt.py"><span class="glyphicon glyphicon-dashboard"></span> Real-time</a></li>
+                <li><a href="/cgi-bin/chart_1hr.py"><span class="glyphicon glyphicon-stats"></span> Last 3 hrs</a></li>
+                <li class="active"><a href="/cgi-bin/chart.py"><span class="glyphicon glyphicon-stats"></span> Last 24 hrs</a></li>
+                <li><a href="/cgi-bin/chart_7day.py"><span class="glyphicon glyphicon-stats"></span> Last 7 days</a></li>
               </ul>
             </div><!--/.nav-collapse -->
           </div>

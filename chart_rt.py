@@ -76,7 +76,7 @@ def printHTTPheader():
     </head>
 
     <body>
-      <div class="container">
+      <div class="container center-block">
         <div class="navbar navbar-default">
           <div class="container">
             <div class="navbar-header">
@@ -90,17 +90,17 @@ def printHTTPheader():
             </div>
             <div class="navbar-collapse collapse">
               <ul class="nav navbar-nav custom">
-		<li><a href="/cgi-bin/chart_stats.py">Statistics</a></li>
-                <li class="active"><a href="/cgi-bin/chart_rt.py">Real-time</a></li>
-                <li><a href="/cgi-bin/chart_1hr.py">Last 3 hrs</a></li>
-                <li><a href="/cgi-bin/chart.py">Last 24 hrs</a></li>
-                <li><a href="/cgi-bin/chart_7day.py">Last 7 days</a></li>
+                <li><a href="/cgi-bin/chart_stats.py"><span class="glyphicon glyphicon-list"></span> Statistics</a></li>
+                <li class="active"><a href="/cgi-bin/chart_rt.py"><span class="glyphicon glyphicon-dashboard"></span> Real-time</a></li>
+                <li><a href="/cgi-bin/chart_1hr.py"><span class="glyphicon glyphicon-stats"></span> Last 3 hrs</a></li>
+                <li><a href="/cgi-bin/chart.py"><span class="glyphicon glyphicon-stats"></span> Last 24 hrs</a></li>
+                <li><a href="/cgi-bin/chart_7day.py"><span class="glyphicon glyphicon-stats"></span> Last 7 days</a></li>
               </ul>
             </div><!--/.nav-collapse -->
           </div>
         </div>
         <div class="page-header">
-          <h2>CellarMon <small>Beer Cellar Temp - Real-Time Gauges</small></h2>
+          <h2>CellarMon <small>Real-Time Gauges</small></h2>
 	      </div>"""
 
 def printGauge(gauge_name, reading, yellowTo, redFrom, resultPercent=False):
@@ -143,7 +143,7 @@ def printGauge(gauge_name, reading, yellowTo, redFrom, resultPercent=False):
 
 # draw each gauge HTML
 def printResultRow(gauge_name):
-    print """      <div class="col-sm-6 col-lg-3"><div id="%s" style="width: 146px; margin:auto"></div></div>""" % gauge_name
+    print """      <div class="col-xs-12 col-sm-6 col-lg-3"><div id="%s" style="width: 146px; margin:auto"></div></div>""" % gauge_name
 
 # finish the HTML
 def printHTTPfooter():
@@ -170,7 +170,7 @@ def main():
     printGauge('Fridge', cur_fridge_temp.strip(" "), Fridge_yellowTo, Fridge_redFrom)
     printGauge('Humidity', cur_fridge_humidity.strip(" "), Humidity_yellowTo, Humidity_redFrom, True)
     printGauge('Outside', cur_outside_temp.strip(" "), Outside_yellowTo, Outside_redFrom)
-    print """    <div class="row container">"""
+    print """    <div class="row container center-block">"""
     printResultRow('Ambient')
     printResultRow('Fridge')
     # fix responsive grid rendering weirdness
