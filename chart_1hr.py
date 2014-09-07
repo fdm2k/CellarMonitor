@@ -106,7 +106,7 @@ def printHTTPheader():
           </div>
         </div>
         <div class="page-header">
-          <h2>CellarMon <small>Beer Cellar Temp - Last 3 hours</small></h2>
+          <h2>CellarMon <small>Last 3 hours</small></h2>
 	</div>"""
 
 # Main program body

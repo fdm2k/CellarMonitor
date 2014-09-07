@@ -5,13 +5,32 @@ import sqlite3
 import time
 
 column_array = ['ambient_temp','fridge_temp','fridge_humidity','outside_temp']
+column_headings = ['Ambient temp','Fridge temp','Fridge humidity','Outside temp']
 stat_array = ['Min','Max','Avg']
 
 #colourbar_state = True
-colourbar_colour = 'info'
+colourbar = 'danger'
 
 # enable tracebacks of exceptions
 cgitb.enable()
+
+# grab the current, most recent readings from the sensors
+def get_datetime(first = True):
+    dbfile = '/home/pi/scripts/CellarMon/templog.db'
+
+    # open a connection to the database
+    conn=sqlite3.connect(dbfile)
+    curs=conn.cursor()
+
+    # get result
+    if first:
+        for row in curs.execute("SELECT datetime FROM temps ORDER BY datetime ASC LIMIT 1"):
+          result = str(row[0])
+    else:
+        for row in curs.execute("SELECT datetime FROM temps ORDER BY datetime DESC LIMIT 1"):
+	  result = str(row[0])
+
+    return result
 
 # grab the current, most recent readings from the sensors
 def get_stats(stat, column_name):
@@ -22,9 +41,7 @@ def get_stats(stat, column_name):
     curs=conn.cursor()
 
     # get result
-    #for row in curs.execute("SELECT min("+column_name+"), max("+column_name+"), avg("+column_name+") FROM temps"):
     for row in curs.execute("SELECT "+stat+"("+column_name+") FROM temps"):
-	#result = str(row[0])+","+str(row[1])
 	result = str(row[0])
 
     return result
@@ -91,7 +108,7 @@ def printHTMLheader():
           </div>
         </div>
         <div class="page-header">
-          <h2>CellarMon <small>Beer Cellar Temp - Statistics</small></h2>
+          <h2>CellarMon <small>Temp Statistics</small></h2>
 	      </div>"""
 
 # build the table header
@@ -112,20 +129,17 @@ def printHTMLTableHeader():
 	    <tbody>"""
 
 # build the table rows
-def printHTMLResult(colour_state, column_name):
+def printHTMLResult(colour_state, column_name, friendly_column_name):
     # first determine whether to background-colour the table row or not
     if colour_state:
-	colour = colourbar_colour
+        print """              <tr class="%s">""" % colourbar
     else:
-	colour = ""
+        print """              <tr>"""
 
-    print """              <tr class="%s">""" % colour
-
-    print """		<td>%s</td>""" % column_name
+    print """		<td>%s</td>""" % friendly_column_name
 
     for item in stat_array:
 	result = get_stats(item, column_name)
-
 	print """		<td>%0.2f</td>""" % float(result)
 
     print """              </tr>"""
@@ -134,12 +148,12 @@ def printHTMLResult(colour_state, column_name):
 def printHTMLTableFooter():
     print """	    </tbody>
           </table>
-        </div>"""
+        </div>
+    </div>"""
 
 # finish the HTML
 def printHTMLfooter():
-    print """    </div>
-    <!-- Bootstrap core JavaScript
+    print """    <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
@@ -150,17 +164,26 @@ def printHTMLfooter():
 
 # Main program body
 def main():
+    # set the colour bar colour for the first row
     colourbar_state = True
+    heading = 0
+
     # print out the header section
     printHTMLheader()
 
     # build the table of results
     printHTMLTableHeader()
     for item in column_array:
-	printHTMLResult(colourbar_state, item)
+	# loop through each available column and print all the defined stats
+	printHTMLResult(colourbar_state, item, column_headings[heading])
 	colourbar_state = not colourbar_state
+	heading += 1
 
     printHTMLTableFooter()
+
+    # print latest DB entry date
+    print "<small>First reading in database: <em>"+str(get_datetime(True))+"</em></small><BR>"
+    print "<small>Last reading in database: <em>"+str(get_datetime(False))+"</em></small>"
 
     # print the HTTP footer
     printHTMLfooter()

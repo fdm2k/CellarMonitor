@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import cgi
 import cgitb
 import sqlite3
@@ -19,6 +20,9 @@ Humidity_yellowTo = 50
 Humidity_redFrom = 75
 Outside_yellowTo = 2
 Outside_redFrom = 35
+
+# unicode degrees symbol
+degsym ='\u00b0'
 
 # enable tracebacks of exceptions
 cgitb.enable()
@@ -133,6 +137,11 @@ def printGauge(gauge_name, reading, yellowTo, redFrom, resultPercent=False):
 	{suffix: '%',pattern:'#'}
 	);
 	formatter.format(data,1);"""
+    else:
+        printStr = printStr+"""var formatter = new google.visualization.NumberFormat(
+        {suffix: '%sC',pattern:'#'}
+        );
+        formatter.format(data,1);""" % degsym
 
     # wanted to split these up because of percentile formatting
     printStr = printStr+"""new google.visualization.Gauge(document.getElementById('%s')).draw(data, options);
@@ -180,6 +189,8 @@ def main():
     # fix responsive grid rendering weirdness
     print """      <div class="clearfix visible-sm-block"></div>"""
     print """      <div class="clearfix visible-lg-block"></div>"""
+    # datetime stamp when the latest data was sucked in
+    print "<small>Readings last updated: <em>"+str(cur_datetime)+"</em></small>"
 
     printHTTPfooter()
 
