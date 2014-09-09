@@ -190,7 +190,7 @@ def main():
     print """      <div class="clearfix visible-sm-block"></div>"""
     print """      <div class="clearfix visible-lg-block"></div>"""
     # datetime stamp when the latest data was sucked in
-    print "<small>Readings last updated: <em>"+str(cur_datetime)+"</em></small>"
+    print "<small>Readings last updated: <code>"+str(cur_datetime)+"</code></small>"
 
     printHTTPfooter()
 

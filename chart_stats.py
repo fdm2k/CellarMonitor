@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import cgi
 import cgitb
 import sqlite3
@@ -8,11 +9,25 @@ column_array = ['ambient_temp','fridge_temp','fridge_humidity','outside_temp']
 column_headings = ['Ambient temp','Fridge temp','Fridge humidity','Outside temp']
 stat_array = ['Min','Max','Avg']
 
-#colourbar_state = True
-colourbar = 'danger'
+# setup appropriate visual variables
+colourbar = 'info'
+degsym = "°"
 
 # enable tracebacks of exceptions
 cgitb.enable()
+
+def get_rowcount():
+    dbfile = '/home/pi/scripts/CellarMon/templog.db'
+
+    # open a connection to the database
+    conn=sqlite3.connect(dbfile)
+    curs=conn.cursor()
+
+    # get result
+    for row in curs.execute("SELECT count(datetime) FROM temps"):
+	rowcount = str(row[0])
+
+    return rowcount
 
 # grab the current, most recent readings from the sensors
 def get_datetime(first = True):
@@ -33,16 +48,27 @@ def get_datetime(first = True):
     return result
 
 # grab the current, most recent readings from the sensors
-def get_stats(stat, column_name):
+def get_stats(stat, column_name, curdate = False):
     dbfile = '/home/pi/scripts/CellarMon/templog.db'
 
+    if curdate:
+	sqlquery = "SELECT "+stat+"("+column_name+"), datetime FROM temps where datetime >= '"+time.strftime('%Y-%m-%d')+" 00:00'"
+    else:
+	sqlquery = "SELECT "+stat+"("+column_name+") FROM temps"
+	
     # open a connection to the database
     conn=sqlite3.connect(dbfile)
     curs=conn.cursor()
 
     # get result
-    for row in curs.execute("SELECT "+stat+"("+column_name+") FROM temps"):
-	result = str(row[0])
+    for row in curs.execute(sqlquery):
+	if curdate:
+	  #new_date = time.strptime(row[1], '%y-%m-%j %H:%M:%S')
+	  #print new_date
+	  result = str(row[0]), row[1]
+
+	else:
+	  result = str(row[0])
 
     return result
 
@@ -116,7 +142,7 @@ def printHTMLTableHeader():
     print """
       <div class="row container">
         <div class="col-md-6 table-responsive">
-          <table class="table table-bordered">
+          <table class="table table-bordered table-striped">
             <thead>
               <tr>
                 <th>Statistic</th>"""
@@ -131,16 +157,19 @@ def printHTMLTableHeader():
 # build the table rows
 def printHTMLResult(colour_state, column_name, friendly_column_name):
     # first determine whether to background-colour the table row or not
-    if colour_state:
-        print """              <tr class="%s">""" % colourbar
-    else:
-        print """              <tr>"""
+    #if colour_state:
+    #    print """              <tr class="%s">""" % colourbar
+    #else:
+    print """              <tr>"""
 
     print """		<td>%s</td>""" % friendly_column_name
 
     for item in stat_array:
 	result = get_stats(item, column_name)
-	print """		<td>%0.2f</td>""" % float(result)
+	if friendly_column_name.find("temp") > 0:
+	  print """		<td>%0.1f%s</td>""" % (float(result),degsym)
+	else:
+	  print """		<td>%0.0f%%</td>""" % float(result)
 
     print """              </tr>"""
 
@@ -182,8 +211,13 @@ def main():
     printHTMLTableFooter()
 
     # print latest DB entry date
-    print "<small>First reading in database: <em>"+str(get_datetime(True))+"</em></small><BR>"
-    print "<small>Last reading in database: <em>"+str(get_datetime(False))+"</em></small>"
+    print "    <p><small>First reading in database: <code>"+str(get_datetime(True))+"</code></small></p>"
+    print "    <p><small>Last reading in database: <code>"+str(get_datetime(False))+"</code></small></p>"
+    print "    <p><small>Total rows in database: <code>"+str(get_rowcount())+" rows</code></small></p>"
+
+    # print out max temp so far today
+    todays_max = get_stats("max", "fridge_temp", True)
+    print "    <p><small>Max fridge_temp for today: <code>%0.2f%sC @ %s</code></small></p>" % (float(todays_max[0]),degsym,str(todays_max[1]))
 
     # print the HTTP footer
     printHTMLfooter()
