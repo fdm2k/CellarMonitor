@@ -5,13 +5,16 @@ import cgi
 import cgitb
 
 dbfile = '/home/pi/scripts/CellarMon/beerlist.db'
+
 # sql queries below
-top5drink_headers = ["Pos.","Brewer","Beer","Type/Style","Best Before"]
+top5drink_headers = ["Brewer","Beer","Type/Style","Best Before"]
 top5drink_sql = "SELECT brewer, beer, type, bestbefore FROM beers WHERE status <> 'D' ORDER BY bestbefore ASC LIMIT 5;"
+
 latest15beers_headers = ["Brewer","Beer","Type/Style","Purch. Date"]
 latest15beers_sql = "SELECT brewer, beer, type, purchased FROM beers where status <> 'D' ORDER BY purchased DESC LIMIT 15;"
-storecount_headers = ["Store From","Beer Count","Spend"]
-storecount_sql = "SELECT store, count(store) AS store_count, sum(price) AS spent FROM beers GROUP BY store ORDER BY store_count DESC;"
+
+storecount_headers = ["Store From","Beer Count","Total Spend","Price per Beer"]
+storecount_sql = "SELECT store, count(store) AS store_count, sum(price) AS total_spent, sum(price) / count(price) AS price_per_beer FROM beers GROUP BY store ORDER BY store_count DESC;"
 
 # enable tracebacks of exeptions
 cgitb.enable()
@@ -87,7 +90,7 @@ def printHTMLheader():
 	      </div>"""
 
 # build the table header
-def printHTMLTableHeader(header_array, tabledesc = "Blank table"):
+def printHTMLTableHeader(header_array, tabledesc = "Blank table", pos = False):
     print """
       <div class="row container">
         <div class="col-md-12 table-responsive">
@@ -95,6 +98,8 @@ def printHTMLTableHeader(header_array, tabledesc = "Blank table"):
           <table class="table table-bordered table-striped table-condensed">
             <thead>
               <tr>""" % tabledesc
+    if pos:
+	print "		<th>Pos.</th>"
 
     for item in header_array:
         print """		<th>%s</th>""" % item
@@ -107,15 +112,18 @@ def printHTMLTableHeader(header_array, tabledesc = "Blank table"):
 # build the table rows
 def printHTMLResult(sql_query, header_array, pos = False):
     rowcount = 1
-    
+    i = 0
+
     for row in cur.execute(sql_query):
         print """              <tr>"""
 	if pos:
-	  print "  <td><small>"+str(rowcount)+"</small></td>"
+	  print "    <td><small>%s</small></td>" % str(rowcount)
 
-	for i in range(0,len(header_array)-1):
-	  #print i
-	  print "<td><small>"+str(row[i])+"</small></td>"
+	for i in range(0,len(header_array)):
+	  if "price" in header_array[i].lower() or "spend" in header_array[i].lower():
+            print "    <td><small>$%0.2f</small></td>" % float(row[i])
+	  else:
+	    print "    <td><small>%s</small></td>" % str(row[i])
 
         print """              </tr>"""
 	rowcount += 1
@@ -143,7 +151,7 @@ def main():
     printHTMLheader()
 
     # build the table #1 of results
-    printHTMLTableHeader(top5drink_headers, "Top 5 beers to drink now!")
+    printHTMLTableHeader(top5drink_headers, "Top 5 beers to drink now!",True)
     printHTMLResult(top5drink_sql, top5drink_headers, True)
     printHTMLTableFooter()
 
