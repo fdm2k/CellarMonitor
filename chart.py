@@ -98,6 +98,8 @@ def printHTTPheader():
               <ul class="nav navbar-nav">
                 <li><a href="/cgi-bin/chart_stats.py"><span class="glyphicon glyphicon-list"></span> Statistics</a></li>
                 <li><a href="/cgi-bin/chart_rt.py"><span class="glyphicon glyphicon-dashboard"></span> Real-time</a></li>
+		<li><a href="/cgi-bin/chart_beers.py"><span class="glyphicon glyphicon-tint"></span> Beer Stats</a></li>
+		<li><a href="/cgi-bin/chart_bcountry.py"><span class="glyphicon glyphicon-globe"></span> Beer Charts</a></li>
                 <li><a href="/cgi-bin/chart_1hr.py"><span class="glyphicon glyphicon-stats"></span> Last 3 hrs</a></li>
                 <li class="active"><a href="/cgi-bin/chart.py"><span class="glyphicon glyphicon-stats"></span> Last 24 hrs</a></li>
                 <li><a href="/cgi-bin/chart_7day.py"><span class="glyphicon glyphicon-stats"></span> Last 7 days</a></li>
