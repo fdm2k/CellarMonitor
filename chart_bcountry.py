@@ -95,7 +95,7 @@ def printHTTPheader():
           </div>
         </div>
         <div class="page-header">
-          <h2>CellarMon <small>Beer brewery map</small></h2>
+          <h2>CellarMon <small>Beer Charts</small></h2>
 	</div>"""
 
 # Main program body
@@ -107,7 +107,7 @@ def main():
     page_str="""
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script type="text/javascript">
-        google.load("visualization", "1", {packages:["geochart"]});
+        google.load("visualization", "1", {packages:["corechart"]});
         google.setOnLoadCallback(drawRegionsMap);
 
       function drawRegionsMap() {
@@ -116,9 +116,12 @@ def main():
 	  %s
 	  ]);
 
-	var options = {};
+	var options = {
+	  title: 'Beers by Country',
+	  is3D: true,
+	};
 
-        var chart = new google.visualization.GeoChart(document.getElementById('chart_div'));
+        var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
 
 	chart.draw(data, options);
       }

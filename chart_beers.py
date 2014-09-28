@@ -16,6 +16,9 @@ latest15beers_sql = "SELECT brewer, beer, type, purchased FROM beers where statu
 storecount_headers = ["Store From","Beer Count","Total Spend","Price per Beer"]
 storecount_sql = "SELECT store, count(store) AS store_count, sum(price) AS total_spent, sum(price) / count(price) AS price_per_beer FROM beers GROUP BY store ORDER BY store_count DESC;"
 
+top10abv_headers = ["Brewer","Beer","Type/Style","ABV"]
+top10abv_sql = "SELECT brewer, beer, type, abv2 FROM beers ORDER BY ABV2 DESC LIMIT 10;"
+
 # enable tracebacks of exeptions
 cgitb.enable()
 
@@ -166,6 +169,10 @@ def main():
     printHTMLResult(storecount_sql, storecount_headers)
     printHTMLTableFooter()
 
+    # build table #4 of results
+    printHTMLTableHeader(top10abv_headers, "Top 10 Highest ABV Beers")
+    printHTMLResult(top10abv_sql, top10abv_headers)
+    printHTMLTableFooter()
 
     # print the HTTP footer
     printHTMLfooter()
