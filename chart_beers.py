@@ -22,6 +22,9 @@ top10abv_sql = "SELECT brewer, beer, type, abv2 FROM beers ORDER BY ABV2 DESC LI
 beersbystyle_headers = ["Type/Style","Total Beers","Total Spend"]
 beersbystyle_sql = "SELECT type, count(type) AS beer_count, sum(price) AS total_spent FROM beers GROUP BY type ORDER BY beer_count DESC;"
 
+cellaredbeers_headers = ["Brewer","Beer","Type/Style","Best Before"]
+cellaredbeers_sql = "SELECT brewer, beer, type, bestbefore FROM beers WHERE status = 'A' AND cellared = 'Yes' ORDER BY bestbefore ASC Limit 10;"
+
 # enable tracebacks of exeptions
 cgitb.enable()
 
@@ -177,7 +180,12 @@ def main():
     printHTMLResult(top10abv_sql, top10abv_headers)
     printHTMLTableFooter()
 
-    # build table 5 of results
+    # build table #5 of results
+    printHTMLTableHeader(cellaredbeers_headers, "Top 10 cellared beers to drink first")
+    printHTMLResult(cellaredbeers_sql, cellaredbeers_headers)
+    printHTMLTableFooter()
+
+    # build table 6 of results
     printHTMLTableHeader(beersbystyle_headers, "Beer by Type/Style")
     printHTMLResult(beersbystyle_sql, beersbystyle_headers)
     printHTMLTableFooter()
