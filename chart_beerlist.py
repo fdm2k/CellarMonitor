@@ -7,20 +7,8 @@ import cgitb
 dbfile = '/home/pi/scripts/CellarMon/beerlist.db'
 
 # sql queries below
-top10drink_headers = ["Brewer","Beer","Type/Style","Best Before"]
-top10drink_sql = "SELECT brewer, beer, type, bestbefore FROM beers WHERE status = 'A' AND cellared <> 'Yes' ORDER BY bestbefore ASC LIMIT 10;"
-
-latest15beers_headers = ["Brewer","Beer","Type/Style","Purch. Date"]
-latest15beers_sql = "SELECT brewer, beer, type, purchased FROM beers where status <> 'D' ORDER BY purchased DESC LIMIT 15;"
-
-storecount_headers = ["Store From","Beer Count","Total Spend","Price per Beer"]
-storecount_sql = "SELECT store, count(store) AS store_count, sum(price) AS total_spent, sum(price) / count(price) AS price_per_beer FROM beers GROUP BY store ORDER BY store_count DESC;"
-
-top10abv_headers = ["Brewer","Beer","Type/Style","ABV (%)"]
-top10abv_sql = "SELECT brewer, beer, type, abv2 FROM beers ORDER BY ABV2 DESC LIMIT 10;"
-
-beersbystyle_headers = ["Type/Style","Total Beers","Total Spend"]
-beersbystyle_sql = "SELECT type, count(type) AS beer_count, sum(price) AS total_spent FROM beers GROUP BY type ORDER BY beer_count DESC;"
+query_headers = ["Brewer","Beer","Type/Style","ABV"]
+query_sql = "SELECT brewer, beer, type, abv2 FROM beers ORDER BY ABV2 DESC LIMIT 10;"
 
 # enable tracebacks of exeptions
 cgitb.enable()
@@ -157,29 +145,9 @@ def main():
     # print out the header section
     printHTMLheader()
 
-    # build the table #1 of results
-    printHTMLTableHeader(top10drink_headers, "Top 10 beers to drink now!",True)
-    printHTMLResult(top10drink_sql, top10drink_headers, True)
-    printHTMLTableFooter()
-
-    # build table #2 of results
-    printHTMLTableHeader(latest15beers_headers, "Latest 15 beers purchased")
-    printHTMLResult(latest15beers_sql, latest15beers_headers)
-    printHTMLTableFooter()
-
-    # build table #3 of results
-    printHTMLTableHeader(storecount_headers, "Where have I bought from?")
-    printHTMLResult(storecount_sql, storecount_headers)
-    printHTMLTableFooter()
-
-    # build table #4 of results
-    printHTMLTableHeader(top10abv_headers, "Top 10 Highest ABV Beers")
-    printHTMLResult(top10abv_sql, top10abv_headers)
-    printHTMLTableFooter()
-
-    # build table 5 of results
-    printHTMLTableHeader(beersbystyle_headers, "Beer by Type/Style")
-    printHTMLResult(beersbystyle_sql, beersbystyle_headers)
+    # build table of results
+    printHTMLTableHeader(query_headers, "Beer Listing Test")
+    printHTMLResult(query_sql, query_headers)
     printHTMLTableFooter()
 
     # print the HTTP footer
