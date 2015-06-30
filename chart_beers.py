@@ -20,7 +20,7 @@ top10abv_headers = ["Brewer","Beer","Type/Style","ABV (%)"]
 top10abv_sql = "SELECT brewer, beer, type, abv2 FROM beers ORDER BY ABV2 DESC LIMIT 10;"
 
 top10lowabv_headers = ["Brewer","Beer","Type/Style","ABV (%)"]
-top10lowabv_sql = "SELECT brewer, beer, type, abv2 FROM beers ORDER BY ABV2 ASC LIMIT 10;"
+top10lowabv_sql = "SELECT brewer, beer, type, abv2 FROM beers WHERE status = 'A' ORDER BY ABV2 ASC LIMIT 10;"
 
 beersbystyle_headers = ["Type/Style","Total Beers","Total Spend"]
 beersbystyle_sql = "SELECT type, count(type) AS beer_count, sum(price) AS total_spent FROM beers GROUP BY type ORDER BY beer_count DESC;"
