@@ -5,28 +5,13 @@ import cgi
 import cgitb
 
 dbfile = '/home/pi/scripts/CellarMon/beerlist.db'
-
 # sql queries below
-top10drink_headers = ["Brewer","Beer","Type/Style","Best Before"]
-top10drink_sql = "SELECT brewer, beer, type, bestbefore FROM beers WHERE status = 'A' AND cellared <> 'Yes' ORDER BY bestbefore ASC LIMIT 10;"
-
-latest15beers_headers = ["Brewer","Beer","Type/Style","Purch. Date"]
+top5drink_headers = "Pos., Brewer, Beer, Type/Style, Best Before"
+top5drink_sql = "SELECT brewer, beer, type, bestbefore FROM beers WHERE status <> 'D' ORDER BY bestbefore ASC LIMIT 5;"
+latest15beers_headers = "Brewer, Beer, Type/Style, Purch. Date"
 latest15beers_sql = "SELECT brewer, beer, type, purchased FROM beers where status <> 'D' ORDER BY purchased DESC LIMIT 15;"
-
-storecount_headers = ["Store From","Beer Count","Total Spend","Price per Beer"]
-storecount_sql = "SELECT store, count(store) AS store_count, sum(price) AS total_spent, sum(price) / count(price) AS price_per_beer FROM beers GROUP BY store ORDER BY store_count DESC;"
-
-top10abv_headers = ["Brewer","Beer","Type/Style","ABV (%)"]
-top10abv_sql = "SELECT brewer, beer, type, abv2 FROM beers ORDER BY ABV2 DESC LIMIT 10;"
-
-top10lowabv_headers = ["Brewer","Beer","Type/Style","ABV (%)"]
-top10lowabv_sql = "SELECT brewer, beer, type, abv2 FROM beers ORDER BY ABV2 ASC LIMIT 10;"
-
-beersbystyle_headers = ["Type/Style","Total Beers","Total Spend"]
-beersbystyle_sql = "SELECT type, count(type) AS beer_count, sum(price) AS total_spent FROM beers GROUP BY type ORDER BY beer_count DESC;"
-
-cellaredbeers_headers = ["Brewer","Beer","Type/Style","Best Before"]
-cellaredbeers_sql = "SELECT brewer, beer, type, bestbefore FROM beers WHERE status = 'A' AND cellared = 'Yes' ORDER BY bestbefore ASC Limit 10;"
+storecount_headers = "Store From, Beer Count, Spend"
+storecount_sql = "SELECT store, count(store) AS store_count, sum(price) as  FROM beers GROUP BY store ORDER BY store_count DESC;"
 
 # enable tracebacks of exeptions
 cgitb.enable()
@@ -88,8 +73,7 @@ def printHTMLheader():
             <div class="navbar-collapse collapse">
               <ul class="nav navbar-nav custom">
                 <li><a href="/cgi-bin/chart_stats.py"><span class="glyphicon glyphicon-list"></span> Statistics</a></li>
-		<li class="active"><a href="/cgi-bin/chart_beers.py"><span class="glyphicon glyphicon-tint"></span> Beer stats</a></li>
-                <li><a href="/cgi-bin/chart_bcountry.py"><span class="glyphicon glyphicon-globe"></span> Beer Charts</a></li>
+		<li class="active"><a href="/cgi-bin/chart_beers.py"><span class="glyphicon glyphicon-glass"></span> Beers</a></li>
                 <li><a href="/cgi-bin/chart_rt.py"><span class="glyphicon glyphicon-dashboard"></span> Real-time</a></li>
                 <li><a href="/cgi-bin/chart_1hr.py"><span class="glyphicon glyphicon-stats"></span> Last 3 hrs</a></li>
                 <li><a href="/cgi-bin/chart.py"><span class="glyphicon glyphicon-stats"></span> Last 24 hrs</a></li>
@@ -103,18 +87,16 @@ def printHTMLheader():
 	      </div>"""
 
 # build the table header
-def printHTMLTableHeader(header_array, tabledesc = "Blank table", pos = False):
+def printHTMLTableHeader(header_array, tabledesc = "Blank table"):
     print """
       <div class="row container">
-        <div class="col-md-12 table-responsive">
+        <div class="col-md-12">
 	<h4>%s</h4>
-          <table class="table table-bordered table-striped table-condensed">
+          <table class="table table-bordered table-striped table-responsive">
             <thead>
               <tr>""" % tabledesc
-    if pos:
-	print "		<th>Pos.</th>"
 
-    for item in header_array:
+    for item in header_array.split(","):
         print """		<th>%s</th>""" % item
 
     # print trailing table row, header and body
@@ -123,21 +105,15 @@ def printHTMLTableHeader(header_array, tabledesc = "Blank table", pos = False):
 	    <tbody>"""
 
 # build the table rows
-def printHTMLResult(sql_query, header_array, pos = False):
+def printHTMLResult(sql_query, pos = False):
     rowcount = 1
-    i = 0
-
+    
     for row in cur.execute(sql_query):
         print """              <tr>"""
 	if pos:
-	  print "    <td><small>%s</small></td>" % str(rowcount)
-
-	for i in range(0,len(header_array)):
-	  if "price" in header_array[i].lower() or "spend" in header_array[i].lower():
-            print "    <td><small>$%0.2f</small></td>" % float(row[i])
-	  else:
-	    print "    <td><small>%s</small></td>" % str(row[i])
-
+	  print "  <td><small>"+str(rowcount)+"</small></td>"
+	print "<td><small>"+str(row[0])+"</small></td><td><small>"+str(row[1])+"</small></td><td><small>"+str(row[2])+"</small></td><td><small>"+str(row[3])+"</small></td>"
+	  
         print """              </tr>"""
 	rowcount += 1
 
@@ -164,39 +140,20 @@ def main():
     printHTMLheader()
 
     # build the table #1 of results
-    printHTMLTableHeader(top10drink_headers, "Top 10 beers to drink now!",True)
-    printHTMLResult(top10drink_sql, top10drink_headers, True)
+    printHTMLTableHeader(top5drink_headers, "Top 5 beers to drink now!")
+    printHTMLResult(top5drink_sql, True)
     printHTMLTableFooter()
 
     # build table #2 of results
     printHTMLTableHeader(latest15beers_headers, "Latest 15 beers purchased")
-    printHTMLResult(latest15beers_sql, latest15beers_headers)
+    printHTMLResult(latest15beers_sql)
     printHTMLTableFooter()
 
     # build table #3 of results
     printHTMLTableHeader(storecount_headers, "Where have I bought from?")
-    printHTMLResult(storecount_sql, storecount_headers)
+    printHTMLResult(storecount_sql)
     printHTMLTableFooter()
 
-    # build table #4 of results
-    printHTMLTableHeader(top10abv_headers, "Top 10 Highest ABV Beers")
-    printHTMLResult(top10abv_sql, top10abv_headers)
-    printHTMLTableFooter()
-
-    # build table #4 of results
-    printHTMLTableHeader(top10lowabv_headers, "Top 10 Lowest ABV Beers")
-    printHTMLResult(top10lowabv_sql, top10lowabv_headers)
-    printHTMLTableFooter()
-
-    # build table #5 of results
-    printHTMLTableHeader(cellaredbeers_headers, "Top 10 cellared beers to drink first")
-    printHTMLResult(cellaredbeers_sql, cellaredbeers_headers)
-    printHTMLTableFooter()
-
-    # build table 6 of results
-    printHTMLTableHeader(beersbystyle_headers, "Beer by Type/Style")
-    printHTMLResult(beersbystyle_sql, beersbystyle_headers)
-    printHTMLTableFooter()
 
     # print the HTTP footer
     printHTMLfooter()
